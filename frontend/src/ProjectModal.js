@@ -107,11 +107,16 @@ const ProjectModal = () => {
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-r from-teal-200 via-pink-200 to-yellow-200">
       <div className="flex-none h-1/5 flex justify-between items-start p-4">
-      
-        <div>
-          <h1 className="text-3xl text-zinc-600 font-bold">Project List</h1>
+        <div className='p-4 '>
+          {/* <h1 className="text-3xl text-zinc-600 font-bold ">Project List</h1> */}
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
+          <button
+            className="bg-white shadow-md rounded-lg p-2 text-center cursor-pointer"
+            onClick={handleOpenAddModal}
+          >
+            <span className="text-gray-500">+ Add Project</span>
+          </button>
         </div>
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo" className="h-16" /> {/* Adjust height as needed */}
@@ -123,25 +128,22 @@ const ProjectModal = () => {
           >
             Logout
           </button>
-          {/* <button
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300"
-            onClick={handleOpenAddModal}
-          >
-            Add Project
-          </button> */}
+          
         </div>
       </div>
-      <div className=" flex-grow overflow-y-auto bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg shadow-md">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 justify-center">
+      <div className="flex-grow overflow-y-auto bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg shadow-md">
+        <ul className="space-y-4">
           {projects.length > 0 ? (
             projects.map((projectName, index) => (
-              <div
+              <li
                 key={index}
-                className="relative bg-gradient-to-r from-pink-50 to-pink-100 shadow-md rounded-lg p-4 flex flex-col items-center"
-                style={{ width: '14rem', height: '4rem' }}
+                className="bg-gradient-to-r from-pink-300 to-pink-200 shadow-md rounded-lg p-4 flex justify-between items-center"
               >
-                <div className="absolute top-2 bottom-2 right-2 flex space-x-2">
-                  <button
+                <Link to={`/projects/${projectName}`} className="text-xl font-bold">
+                  {projectName}
+                </Link>
+                <div className="space-x-2">
+                <button
                     className="text-red-400 hover:underline"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent click event from bubbling up
@@ -160,29 +162,13 @@ const ProjectModal = () => {
                     <i className="fas fa-pencil-alt"></i>
                   </button>
                 </div>
-                <Link
-                  to={`/projects/${projectName}`}
-                  className="text-xl font-bold mb-2 w-full text-center block"
-                >
-                  {projectName}
-                </Link>
-              </div>
+              </li>
             ))
           ) : (
             <p>No projects available</p>
           )}
-          <div
-            className="relative bg-gradient-to-r from-pink-50 to-pink-100 shadow-md rounded-lg p-4 flex flex-col items-center"
-            style={{ width: '14rem', height: '4rem' }}
-            onClick={handleOpenAddModal}
-          >
-            <button
-              className="text-black py-2 px-4 rounded hover:bg-gray-200 transition duration-300"
-            >
-              <i className="fas fa-plus"></i>
-            </button>
-          </div>
-        </div>
+        
+        </ul>
       </div>
 
       <AddProjectModal
@@ -203,8 +189,6 @@ const ProjectModal = () => {
         message={`Are you sure you want to delete the project "${projectToDelete}"?`}
       />
     </div>
-
-
   );
 };
 

@@ -30,6 +30,7 @@ export const signup = async (req, res) => {
         await newUser.save();
         
         res.status(201).json({ msg: 'User registered successfully' });
+        // console.log("successfull")
     } catch (error) {
         console.log("Error in signup controller", error.message);
         res.status(500).json({ error: "Internal Server Error" });

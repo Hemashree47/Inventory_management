@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import AddComponentModal from './AddComponentModal';
 import PasswordModal from './PasswordModal';
-import { getProjectComponents, addComponent, updateComponentQuantity } from './projectApi';
+import ConfirmComponentModal from './ConfirmComponentModal';
+import UpdateComponentModal from './updateComponentModal';
+import { getProjectComponents, addComponent, updateComponentQuantity, deleteComponents, updateComponentName } from './projectApi';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import logo from './images/xyma.png'
-const FIXED_PASSWORD = "0000";
+const FIXED_PASSWORD = "0000"
+
 
 const ProjectComponentsPage = () => {
     const { projectName } = useParams();
@@ -18,23 +20,47 @@ const ProjectComponentsPage = () => {
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [pendingAction, setPendingAction] = useState(null); // Track pending actions
     const [searchTerm, setSearchTerm] = useState(''); // State for search term
+    const [componentToDelete, setComponentToDelete] = useState(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [selectedComponent, setSelectedComponent] = useState(null);
 
     const handleOpenComponentModal = () => setIsComponentModalOpen(true);
     const handleCloseComponentModal = () => setIsComponentModalOpen(false);
 
-    const handleSubmitComponent = async (componentName, quantity) => {
-        try {
-            await addComponent(projectName, { componentName, quantity });
-            toast.success('Component added successfully',{
-                autoClose:2000,
-            });
-            await fetchComponents(); // Refresh the component list
-            handleCloseComponentModal();
-        } catch (error) {
-            console.error('Error adding component:', error);
-            toast.error('Error adding component', { autoClose: 2000 });
-        }
+    const handleOpenUpdateModal = (component) => {
+        setSelectedComponent(component); // Ensure component has the structure {componentName, quantity}
+        setIsUpdateModalOpen(true);
     };
+    const handleCloseUpdateModal = () => setIsUpdateModalOpen(false);
+
+    const handleOpenConfirmModal = (componentName) => {
+        setComponentToDelete(componentName); // Set the component name to delete
+        setIsConfirmModalOpen(true);
+    };
+    
+    const handleCloseConfirmModal = () => setIsConfirmModalOpen(false);
+
+
+    const handleSubmitComponent = async (componentName, quantity) => {
+    
+
+    try {
+        await addComponent(projectName, { componentName, quantity });
+        toast.success('Component added successfully', {
+            autoClose: 2000,
+        });
+        await fetchComponents(); // Refresh the component list
+        handleCloseComponentModal();
+    } catch (error) {
+        console.error('Error adding component:', error);
+        // Extract and show more specific error messages if available
+        const errorMessage = error.response?.data?.error || 'Error adding component';
+        toast.error(errorMessage, { autoClose: 2000 });
+    }
+};
+
 
     const askForPassword = (action) => {
         setPendingAction(() => action); // Set the action to be performed after authentication
@@ -54,35 +80,166 @@ const ProjectComponentsPage = () => {
             setIsPasswordModalOpen(false); // Close the modal on error
         }
     };
-    
-    
 
-    const handleQuantityChange = (componentName, newQuantity) => {
-        if (!isAuthenticated) {
-            // Request password for authentication
-            askForPassword(() => {
-                // Action to perform if authenticated
-                updateComponentQuantity(projectName, componentName, newQuantity)
-                    .then(() => {
-                        fetchComponents(); // Refresh the component list after update
-                    })
-                    .catch(error => {
-                        console.error('Error updating component quantity:', error);
-                        toast.error(error.message || 'Error updating component quantity', { autoClose: 2000 });
+    // const handleDeleteComponent = async () => {
+    //     try {
+    //         await deleteComponents(projectName, componentToDelete);
+    //         toast.success('Component deleted successfully', { autoClose: 2000 });
+    //         fetchComponents();
+    //         handleCloseConfirmModal();
+    //     } catch (error) {
+    //         toast.error('Error deleting component', { autoClose: 2000 });
+    //     }
+    // };
+
+
+    const handleDeleteComponent = async () => {
+        try {
+            if (!isAuthenticated) {
+                
+                    askForPassword(async (password) => {
+                        try {
+                            await deleteComponents(projectName, componentToDelete);
+                            toast.success('Component deleted successfully', { autoClose: 2000 });
+                            fetchComponents();
+                            handleCloseConfirmModal();
+                            //resolve(); // Resolve the promise when done
+                        } catch (error) {
+                            toast.error('Error deleting component', { autoClose: 2000 });
+                            //reject(error); // Reject the promise if there's an error
+                        }
                     });
-            });
-        } else {
-            // If already authenticated, proceed with the update
-            updateComponentQuantity(projectName, componentName, newQuantity)
-                .then(() => {
-                    fetchComponents(); // Refresh the component list after update
-                })
-                .catch(error => {
-                    console.error('Error updating component quantity:', error);
-                    toast.error(error.message || 'Error updating component quantity', { autoClose: 2000 });
-                });
+                
+            } else {
+                await deleteComponents(projectName, componentToDelete);
+                toast.success('Component deleted successfully', { autoClose: 2000 });
+                fetchComponents();
+                handleCloseConfirmModal();
+            }
+        } catch (error) {
+            toast.error('Error deleting component', { autoClose: 2000 });
         }
     };
+    
+    
+    // const handleUpdateComponent = async (oldComponentName, updates) => {
+    //     try {
+    //         console.log('Updating component:', oldComponentName, updates); // Log values
+    
+    //         const updatePromises = [];
+    
+    //         const existingComponents = await getProjectComponents(projectName);
+    //         const componentsArray = Array.isArray(existingComponents) ? existingComponents : [];
+    
+    //         // Check if newName is provided and not the same as the old name
+    //         if (updates.newName && updates.newName !== oldComponentName) {
+    //             const nameExists = componentsArray.some(component => component.componentName === updates.newName);
+    
+    //             if (nameExists) {
+    //                 throw new Error('New component name already exists');
+    //             }
+    
+    //             updatePromises.push(updateComponentName(projectName,oldComponentName, updates.newName));
+    //         }
+    
+    //         if (updates.newQuantity !== undefined) {
+    //             updatePromises.push(updateComponentQuantity(projectName, oldComponentName, updates.newQuantity));
+    //         }
+    
+    //         await Promise.all(updatePromises);
+    
+    //         toast.success('Component updated successfully', { autoClose: 2000 });
+    //         fetchComponents(); // Refresh the list after successful update
+    //         handleCloseUpdateModal();
+    //     } catch (error) {
+    //         console.error('Error updating component:', error);
+    //         if (error.message === 'New component name already exists') {
+    //             toast.warning('Component name already exists', { autoClose: 2000 });
+    //         } else {
+    //             toast.error('Error updating component', { autoClose: 2000 });
+    //         }
+    //     }
+    // };
+    
+
+    const handleUpdateComponent = async (oldComponentName, updates) => {
+        try {
+            if (!isAuthenticated) {
+                // Set the action to be performed after password verification
+                askForPassword(async () => {
+                    console.log('Updating component:', oldComponentName, updates); // Log values
+    
+                    const updatePromises = [];
+    
+                    // Fetch existing components
+                    const response = await getProjectComponents(projectName);
+                    const componentsObject = response.components || {}; // Ensure it's an object
+                    const existingComponents = Object.values(componentsObject); // Convert to array
+    
+                    // console.log('Existing Components:', existingComponents);
+    
+                    // Check if newName is provided and not the same as the old name
+                    if (updates.newName && updates.newName !== oldComponentName) {
+                        const nameExists = existingComponents.some(component => component.ComponentName === updates.newName);
+    
+                        if (nameExists) {
+                            //throw new Error('New component name already exists');
+                            toast.warning('Component name aldready exixts', { autoClose: 2000 })
+                        }
+    
+                        updatePromises.push(updateComponentName(projectName,oldComponentName, updates.newName));
+                    }
+    
+                    if (updates.newQuantity !== undefined) {
+                        updatePromises.push(updateComponentQuantity(projectName, oldComponentName, updates.newQuantity));
+                    }
+    
+                    await Promise.all(updatePromises);
+    
+                    toast.success('Component updated successfully', { autoClose: 2000 });
+                    fetchComponents(); // Refresh the list after successful update
+                    handleCloseUpdateModal();
+                });
+            } else {
+                console.log('Updating component:', oldComponentName, updates); // Log values
+    
+                const updatePromises = [];
+    
+                // Fetch existing components
+                const response = await getProjectComponents(projectName);
+                const componentsObject = response.components || {}; // Ensure it's an object
+                const existingComponents = Object.values(componentsObject); // Convert to array
+    
+                console.log('Existing Components:', existingComponents);
+    
+                // Check if newName is provided and not the same as the old name
+                if (updates.newName && updates.newName !== oldComponentName) {
+                    const nameExists = existingComponents.some(component => component.componentName === updates.newName);
+    
+                    if (nameExists) {
+                        //throw new Error('New component name already exists');
+                        toast.warning('Component name aldready exixts', { autoClose: 2000 })
+                    }
+    
+                    updatePromises.push(updateComponentName(projectName,oldComponentName, updates.newName));
+                }
+    
+                if (updates.newQuantity !== undefined) {
+                    updatePromises.push(updateComponentQuantity(projectName, oldComponentName, updates.newQuantity));
+                }
+    
+                await Promise.all(updatePromises);
+    
+                toast.success('Component updated successfully', { autoClose: 2000 });
+                fetchComponents(); // Refresh the list after successful update
+                handleCloseUpdateModal();
+            }
+        } catch (error) {
+            console.error('Error updating component:', error);
+            console.error(error.message || 'Error updating component', { autoClose: 2000 });
+        }
+    };
+    
 
     const fetchComponents = async () => {
         try {
@@ -106,21 +263,18 @@ const ProjectComponentsPage = () => {
 
     return (
         <div className="w-full h-screen flex flex-col bg-blue-100">
-            {/* <div className="flex justify-center mb-6">
-                <img src={logo} alt="Logo" className="h-16" />
-            </div> */}
             <div className="flex justify-between items-center p-4">
-                <h2 className="text-2xl font-bold">Components for {projectName}</h2>
+                <h2 className="text-2xl font-bold">components for {projectName}</h2>
                 <div className='relative'>
-                <input
-                    type="text"
-                    placeholder="Search components..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border p-2 pl-10 rounded-xl w-full"
-                />
-                 <i className="fas fa-search absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400"></i>
-                 </div>
+                    <input
+                        type="text"
+                        placeholder="Search components..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="border p-2 pl-10 rounded-xl w-full"
+                    />
+                    <i className="fas fa-search absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
             </div>
             <button
                 className="ml-4 bg-blue-500 text-white text-bold py-2 px-2 rounded hover:bg-blue-700 transition duration-300 mb-4 self-start"
@@ -134,25 +288,44 @@ const ProjectComponentsPage = () => {
                 <ul className="p-4 h-full overflow-y-auto bg-gradient-to-r from-mint to-pink-100">
                     {filteredComponents.length > 0 ? (
                         filteredComponents.map(([componentName, { quantity }]) => (
-                            <li key={componentName} className="border-b last:border-none py-2 flex justify-between items-center">
+                            <div key={componentName} className="border-b last:border-none py-2 flex justify-between items-center">
                                 <span className="font-medium">{componentName}</span>
-                                <div className="flex items-center justify-center space-x-2">
-                                    <button
-                                        className="bg-gray-300 p-1 rounded hover:bg-gray-400 transition duration-300"
-                                        onClick={() => handleQuantityChange(componentName, quantity - 1)}
-                                        disabled={quantity <= 0}
+                                {/* <input
+                                    type="number"
+                                    value={quantity}
+                                    onChange={(e) => handleQuantityUpdate(componentName, parseInt(e.target.value))}
+                                    className="border rounded w-16 p-1 text-center"
+                                    min="0"
+                                /> */}
+                                
+                                {/* <button
+                                        className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700"
+                                        onClick={() => handleDeleteComponent(componentName)}
                                     >
-                                        -
-                                    </button>
-                                    <span className="text-lg font-semibold">{quantity}</span>
-                                    <button
-                                        className="bg-gray-300 p-1 rounded hover:bg-gray-400 transition duration-300"
-                                        onClick={() => handleQuantityChange(componentName, quantity + 1)}
+                                        Delete
+                                    </button> */}
+
+
+                                    <div className="flex justify-between items-center py-2 space-x-2">
+                                        <span className="font-medium border border-gray-300 w-24 h-8 flex items-center justify-center rounded-md">
+                                            {quantity}
+                                        </span>
+
+                                        <button
+                                        className="text-blue-500 hover:underline"
+                                        onClick={() => handleOpenUpdateModal({ componentName, quantity })}
                                     >
-                                        +
+                                        <i className="fas fa-pencil-alt"></i>
                                     </button>
-                                </div>
-                            </li>
+
+                                        <button
+                                        className="text-red-400 hover:underline"
+                                        onClick={() => handleOpenConfirmModal(componentName)}
+                                        >
+                                        <i className="fas fa-trash-alt"></i>
+                                    </button>
+                                    </div>
+                            </div>
                         ))
                     ) : (
                         <p className="text-gray-900">No components available</p>
@@ -169,10 +342,23 @@ const ProjectComponentsPage = () => {
                 onClose={() => setIsPasswordModalOpen(false)}
                 onSubmit={handlePasswordSubmit}
             />
+
+            <UpdateComponentModal
+                isOpen={isUpdateModalOpen}
+                onClose={handleCloseUpdateModal}
+                onSubmit={handleUpdateComponent}
+                component={selectedComponent}
+            />
+
+            <ConfirmComponentModal
+                isOpen={isConfirmModalOpen}
+                onClose={handleCloseConfirmModal}
+                onConfirm={handleDeleteComponent}
+                message={`Are you sure you want to delete the component "${componentToDelete}"?`}
+            />
+
         </div>
     );
-    
-    
 };
 
 export default ProjectComponentsPage;

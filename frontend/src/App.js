@@ -8,6 +8,8 @@ import axios from 'axios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ButtonPage from './Button/ButtonPage';
+import Components from './Components/Components';
 
 
 // Function to get the token from cookies
@@ -90,14 +92,15 @@ function App() {
 
     return (
         <Routes>
-            {/* <Route path="/" element={<ProjectModal />} />
-            <Route path="/projects/:projectName" element={<ProjectComponentsPage />} />
-            <Route path="/ProjectModal" element={<ProjectModal />} /> */}
-           <Route path="/" element={<Navigate to={isAuthenticated ? "/ProjectModal" : "/login"} />} />
+           {/* //<Route path="/" element={<Navigate to={isAuthenticated ? "/ProjectModal" : "/login"} />} /> */}
+            <Route path='/' element={<ProjectModal/>}/>
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/projects/:projectName" element={isAuthenticated ? <ProjectComponentsPage /> : <Navigate to="/login" />} />
-            <Route path="/ProjectModal" element={isAuthenticated ? <ProjectModal /> : <Navigate to="/login" />} />
+            <Route path="/projects/:projectName" element={ <ProjectComponentsPage /> } />
+            {/* <Route path="/ProjectModal" element={isAuthenticated ? <ProjectModal /> : <Navigate to="/login" />} /> */}
+            <Route path="/ProjectModal" element={<ProjectModal/>} />
+            <Route path='/ButtonPage' element={<ButtonPage/>}/>
+            <Route path='/Components' element={<Components/>}/>
         </Routes>
     );
 }

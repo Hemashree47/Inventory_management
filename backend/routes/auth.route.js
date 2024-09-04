@@ -1,6 +1,9 @@
 import express from "express";
 import {login,signup,logout,checkSession} from "../controller/login.controller.js"
-import {addProject,addComponents,getAllProjects,getProjectComponents,updateComponentQuantity,deleteProject,updateProjectName} from "../controller/project.controller.js"
+import {addProject,addComponents,getAllProjects,getProjectComponents,deleteProject,updateProjectName,updateComponentName,deleteComponents,updateComponentQuantity} from "../controller/project.controller.js"
+
+import { getRegisterComponents,addRegisterComponents,updateRegisterComponentName,updateRegisterComponentQuantity,deleteRegisterComponent } from "../controller/components.controller.js";
+
 const router=express.Router();
 
 
@@ -27,6 +30,25 @@ router.delete("/projects/:projectName",deleteProject);
 router.delete("/checkSession",checkSession);
 
 router.put("/projects/:projectName",updateProjectName);
+
+router.get("/getRegisterComponents",getRegisterComponents);
+
+router.post("/addRegisterComponents",addRegisterComponents);
+
+router.put("/components/:componentName/name",updateRegisterComponentName);
+
+router.put('/components/:componentName/quantity', updateRegisterComponentQuantity);
+
+router.delete('/components/:componentName', deleteRegisterComponent); 
+
+// Update component quantity
+router.put('/projects/:projectName/components/:componentName/quantity', updateComponentQuantity);
+
+// Update component name
+router.put('/projects/:projectName/components/:componentName/name', updateComponentName);
+
+// Delete component
+router.delete('/projects/:projectName/components/:componentName', deleteComponents);
 
 router.post('/validate-password', async (req, res) => {
     const { username, password } = req.body;

@@ -6,6 +6,7 @@ import './index.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FaHistory, FaClipboardList } from 'react-icons/fa';
 
 ReactDOM.render(
   <BrowserRouter>

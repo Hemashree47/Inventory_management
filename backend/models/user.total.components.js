@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const componentSchema=new mongoose.Schema({
-    
     componentName:{
         type:String,
         required:true,
@@ -14,6 +13,6 @@ const componentSchema=new mongoose.Schema({
     
 })
 
-const userComp=mongoose.model("users",componentSchema);
+const userComponents=mongoose.model("components",componentSchema);
 
-export default userComp;
+export default userComponents;

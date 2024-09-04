@@ -25,12 +25,13 @@ const Signup = () => {
       console.error('Passwords do not match');
       return;
     }
+    // Proceed with API call if passwords match
     try {
-      const res = await axios.post('http://localhost:5000/api/signup', { name, username, password });
+      const res = await axios.post('http://localhost:5000/api/signup', { name, username, password, confirmPassword });
       console.log(res.data);
       navigate('/Login'); // Redirect to login on successful signup
     } catch (err) {
-      console.error(err.response.data);
+      console.error('Error:', err.response ? err.response.data : err.message);
     }
   };
 
