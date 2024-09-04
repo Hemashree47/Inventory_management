@@ -92,9 +92,10 @@ function App() {
 
     return (
         <Routes>
-           {/* //<Route path="/" element={<Navigate to={isAuthenticated ? "/ProjectModal" : "/login"} />} /> */}
-            <Route path='/' element={<ProjectModal/>}/>
+           {/* <Route path="/" element={<Navigate to={isAuthenticated ? "/Buttonpage" : "/login"} />} /> */}
+            {/* <Route path='/' element={<ProjectModal/>}/> */}
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/projects/:projectName" element={ <ProjectComponentsPage /> } />
             {/* <Route path="/ProjectModal" element={isAuthenticated ? <ProjectModal /> : <Navigate to="/login" />} /> */}
