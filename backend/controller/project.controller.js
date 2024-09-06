@@ -1,21 +1,23 @@
 import Project from "../models/user.project.model.js";
 
-export const addProject=async(req,res)=>{
-    try{
-        const { projectName } = req.body;
+export const addProject = async (req, res) => {
+    try {
+        let { projectName } = req.body;
 
         if (!projectName || typeof projectName !== 'string') {
             return res.status(400).json({ error: 'Valid project name is required' });
         }
 
+        const projectNameLower = projectName.toLowerCase();
+        const formattedProjectName = projectName.charAt(0).toUpperCase() + projectName.slice(1).toLowerCase();
+
         // Check if projectName already exists
-        const existingProject = await Project.findOne({ projectName });
+        const existingProject = await Project.findOne({ projectName: new RegExp('^' + projectNameLower + '$', 'i') });
         if (existingProject) {
             return res.status(400).json({ error: 'Project name already exists' });
         }
-        
 
-        const newProject = new Project({ projectName });
+        const newProject = new Project({ projectName: formattedProjectName });
 
         try {
             await newProject.save();
@@ -23,13 +25,14 @@ export const addProject=async(req,res)=>{
             console.error("Error saving project:", error);
             return res.status(500).json({ error: "Error saving project" });
         }
+        
         res.status(201).json({ msg: 'Project saved successfully' });
+    } catch (error) {
+        console.log("Error in Project controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-    catch(error){
-        console.log("Error in Project controller",error.message);
-        res.status(500).json({error:"Internal Server Error"})
-    }
-}
+};
+
 
 
 export const addComponents = async (req, res) => {

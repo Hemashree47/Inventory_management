@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import AddProjectModal from './AddProjectModal';
-import UpdateProjectModal from './UpdateProjectModal';
-import ConfirmationModal from './ConfirmationModal';
+import AddProjectModal from '../AddProjectModal';
+import UpdateProjectModal from '../UpdateProjectModal';
+import ConfirmationModal from '../ConfirmationModal';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllProjects, addProject, deleteProject, updateProject } from './projectApi';
+import { getAllProjects, addProject, deleteProject, updateProject } from '../projectApi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import logo from './images/xyma.png';
+import logo from '../images/xyma.png';
 
-const ProjectModal = () => {
+const ProjectModal2 = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [projects, setProjects] = useState([]);
@@ -127,8 +127,8 @@ const ProjectModal = () => {
             onClick={handleLogout}
           >
             Logout
-          </button>
-           */}
+          </button> */}
+          
         </div>
       </div>
       <div className="flex-grow overflow-y-auto bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg shadow-md">
@@ -139,11 +139,11 @@ const ProjectModal = () => {
                 key={index}
                 className="bg-gradient-to-r from-pink-300 to-pink-200 shadow-md rounded-lg p-4 flex justify-between items-center"
               >
-                <Link to={`/projects/${projectName}`} className="text-xl font-bold">
+                <Link to={`/projects/${projectName}/available`} className="text-xl font-bold">
                   {projectName}
                 </Link>
                 <div className="space-x-2">
-                <button
+                {/* <button
                     className="text-red-400 hover:underline"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent click event from bubbling up
@@ -151,8 +151,8 @@ const ProjectModal = () => {
                     }}
                   >
                     <i className="fas fa-trash-alt"></i>
-                  </button>
-                  <button
+                  </button> */}
+                  {/* <button
                     className="text-blue-500 hover:underline"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent click event from bubbling up
@@ -160,7 +160,8 @@ const ProjectModal = () => {
                     }}
                   >
                     <i className="fas fa-pencil-alt"></i>
-                  </button>
+                  </button> */}
+
                 </div>
               </li>
             ))
@@ -192,4 +193,4 @@ const ProjectModal = () => {
   );
 };
 
-export default ProjectModal;
+export default ProjectModal2;

@@ -55,7 +55,7 @@ const ButtonPage = () => {
           <span>Assign project</span>
         </div>
         <div
-          onClick={() => navigate('/RequestForm')}
+          onClick={() => navigate('/ProjectModal2')}
           className="flex flex-col items-center justify-center w-64 h-64 bg-gray-400 text-white rounded-lg shadow-lg cursor-pointer hover:bg-red-600 transition duration-300"
         >
           <FaClipboardList className="text-4xl mb-4" />

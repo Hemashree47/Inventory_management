@@ -10,6 +10,9 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ButtonPage from './Button/ButtonPage';
 import Components from './Components/Components';
+import ProjectModal2 from './Availability/ProjectModal2';
+import ProjectComponentsPage2 from './Availability/ProjectComponentsPage2'
+import ParentComponent from './ParentComponent';
 
 
 // Function to get the token from cookies
@@ -98,10 +101,13 @@ function App() {
             <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/projects/:projectName" element={ <ProjectComponentsPage /> } />
+            <Route path="/projects/:projectName/available" element={ <ProjectComponentsPage2 /> } />
             {/* <Route path="/ProjectModal" element={isAuthenticated ? <ProjectModal /> : <Navigate to="/login" />} /> */}
             <Route path="/ProjectModal" element={<ProjectModal/>} />
             <Route path='/ButtonPage' element={<ButtonPage/>}/>
             <Route path='/Components' element={<Components/>}/>
+            <Route path="/ProjectModal2" element={<ProjectModal2/>} />
+            <Route path="/ParentComponent" element={<ParentComponent/>} />
         </Routes>
     );
 }
