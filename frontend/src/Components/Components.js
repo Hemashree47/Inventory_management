@@ -39,15 +39,28 @@ const Components = () => {
     const handleCloseConfirmModal = () => setIsConfirmModalOpen(false);
 
     const handleSubmitComponent = async (componentName, quantity) => {
+        // Check if the component already exists
+        const componentExists = filteredComponents.some(
+            (component) => component.componentName.toLowerCase() === componentName.toLowerCase()
+        );
+    
+        if (componentExists) {
+            // Display an error if the component already exists
+            toast.warning('Component already exists', { autoClose: 2000 });
+            return; // Stop further execution if duplicate is found
+        }
+    
         try {
+            // Proceed with adding the component if it doesn't exist
             await addRegisterComponent(componentName, quantity);
             toast.success('Component added successfully', { autoClose: 2000 });
-            fetchComponents();
+            fetchComponents(); // Refresh the component list after adding
             handleCloseAddModal();
         } catch (error) {
             toast.error('Error adding component', { autoClose: 2000 });
         }
     };
+    
 
     
 
@@ -189,84 +202,88 @@ const Components = () => {
     );
 
     return (
-        <div className="w-full h-screen flex flex-col bg-gradient-to-r from-teal-200 via-pink-200 to-yellow-200">
-            <div className="flex justify-between items-center p-4">
-                <h2 className="text-2xl font-bold">Register Components</h2>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search components..."
-                        className="border p-2 pl-10 rounded-xl w-full"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <i className="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-                </div>
+        <div className="w-full h-screen flex flex-col bg-gradient-to-r from-teal-900 to-black">
+          <div className="flex justify-between items-center p-4">
+            <h2 className="text-2xl font-bold text-white">Register Components</h2>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search components..."
+                className=" p-2 pl-10 rounded-xl w-full bg-gray-400 bg-opacity-20"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <i className="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
             </div>
-            <button
-                className="ml-4 bg-blue-500 text-white text-bold py-2 px-2 rounded hover:bg-blue-700 transition duration-300 mb-4 self-start"
-                onClick={handleOpenAddModal}
-            >
-                + Add Component
-            </button>
-            <div className="flex-grow bg-white shadow-md rounded-lg overflow-hidden">
-                <ul className="p-4 h-full overflow-y-auto bg-gradient-to-r from-mint to-pink-100">
-                    {loading ? (
-                        <p>Loading...</p>
-                    ) : error ? (
-                        <p className="text-red-500">{error}</p>
-                    ) : filteredComponents.length > 0 ? (
-                        filteredComponents.map(({ componentName, quantity }, index) => (
-                            <div key={index} className="flex justify-between items-center py-2 border-b ">
-                                <span className="font-medium">{componentName}</span>
-                                <div className="flex justify-between items-center py-2 space-x-2">
-                                    <span className="font-medium border border-gray-300 w-24 h-8 flex items-center justify-center rounded-md">
-                                        {quantity}
-                                    </span>
-                                    <button
-                                        className="text-blue-500 hover:underline"
-                                        onClick={() => handleOpenUpdateModal({ componentName, quantity })}
-                                    >
-                                        <i className="fas fa-pencil-alt"></i>
-                                    </button>
-                                    <button
-                                        className="text-red-400 hover:underline"
-                                        onClick={() => handleOpenConfirmModal(componentName)}
-                                    >
-                                        <i className="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No components available</p>
-                    )}
-                </ul>
-            </div>
-    
-            <AddComponentModal
-                isOpen={isAddModalOpen}
-                onClose={handleCloseAddModal}
-                onSubmit={handleSubmitComponent}
-            />
-            <UpdateComponentModal
-                isOpen={isUpdateModalOpen}
-                onClose={handleCloseUpdateModal}
-                onSubmit={handleUpdateComponent}
-                component={selectedComponent}
-            />
-            <ConfirmComponentModal
-                isOpen={isConfirmModalOpen}
-                onClose={handleCloseConfirmModal}
-                onConfirm={handleDeleteComponent}
-                message={`Are you sure you want to delete the component "${componentToDelete}"?`}
-            />
-            <PasswordModal
-                isOpen={isPasswordModalOpen}
-                onClose={() => setIsPasswordModalOpen(false)}
-                onSubmit={handlePasswordSubmit}
-            />
+          </div>
+          <button
+            className="ml-4 bg-teal-500 bg-opacity-50 text-white text-bold py-2 px-2 rounded-md hover:bg-white hover:text-black transition duration-300 mb-4 self-start"
+            onClick={handleOpenAddModal}
+          >
+            + Add Component
+          </button>
+          <div className="flex-grow bg-opacity-20 shadow-md rounded-lg overflow-hidden text-white">
+            <ul className="p-4 h-full overflow-y-auto space-y-4"> {/* Added space between items */}
+              {loading ? (
+                <p>Loading...</p>
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : filteredComponents.length > 0 ? (
+                filteredComponents.map(({ componentName, quantity }, index) => (
+                  <li
+                    key={index}
+                    className="bg-white bg-opacity-10 shadow-md rounded-lg p-4 flex justify-between items-center  " // Added border
+                  >
+                    <span className="font-medium">{componentName}</span>
+                    <div className="flex justify-between items-center space-x-4">
+                      <span className="font-medium bg-teal-500 bg-opacity-50 w-24 h-8 flex items-center justify-center rounded-md">
+                        {quantity}
+                      </span>
+                      <button
+                        className="text-blue-500 hover:underline"
+                        onClick={() => handleOpenUpdateModal({ componentName, quantity })}
+                      >
+                        <i className="fas fa-pencil-alt"></i>
+                      </button>
+                      <button
+                        className="text-red-400 hover:underline"
+                        onClick={() => handleOpenConfirmModal(componentName)}
+                      >
+                        <i className="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p className='text-white text-xl'>No components available</p>
+              )}
+            </ul>
+          </div>
+      
+          <AddComponentModal
+            isOpen={isAddModalOpen}
+            onClose={handleCloseAddModal}
+            onSubmit={handleSubmitComponent}
+          />
+          <UpdateComponentModal
+            isOpen={isUpdateModalOpen}
+            onClose={handleCloseUpdateModal}
+            onSubmit={handleUpdateComponent}
+            component={selectedComponent}
+          />
+          <ConfirmComponentModal
+            isOpen={isConfirmModalOpen}
+            onClose={handleCloseConfirmModal}
+            onConfirm={handleDeleteComponent}
+            message={`Are you sure you want to delete the component "${componentToDelete}"?`}
+          />
+          <PasswordModal
+            isOpen={isPasswordModalOpen}
+            onClose={() => setIsPasswordModalOpen(false)}
+            onSubmit={handlePasswordSubmit}
+          />
         </div>
-    );
+      );
+      
 };    
 export default Components;

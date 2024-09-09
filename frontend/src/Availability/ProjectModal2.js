@@ -105,18 +105,18 @@ const ProjectModal2 = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gradient-to-r from-teal-200 via-pink-200 to-yellow-200">
+    <div className="w-full h-screen flex flex-col bg-gradient-to-r from-pink-700 to-blue-800">
       <div className="flex-none h-1/5 flex justify-between items-start p-4">
         <div className='p-4 '>
           {/* <h1 className="text-3xl text-zinc-600 font-bold ">Project List</h1> */}
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
-          <button
-            className="bg-white shadow-md rounded-lg p-2 text-center cursor-pointer"
+          {/* <button
+            className="bg-pink-900 shadow-md rounded-lg p-2 text-center cursor-pointer"
             onClick={handleOpenAddModal}
           >
-            <span className="text-gray-500">+ Add Project</span>
-          </button>
+            <span className="text-white font-bold">+ Add Project</span>
+          </button> */}
         </div>
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo" className="h-16" /> {/* Adjust height as needed */}
@@ -131,18 +131,18 @@ const ProjectModal2 = () => {
           
         </div>
       </div>
-      <div className="flex-grow overflow-y-auto bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg shadow-md">
+      <div className="flex-grow overflow-y-auto  p-4 rounded-lg shadow-md">
         <ul className="space-y-4">
           {projects.length > 0 ? (
             projects.map((projectName, index) => (
               <li
                 key={index}
-                className="bg-gradient-to-r from-pink-300 to-pink-200 shadow-md rounded-lg p-4 flex justify-between items-center"
+                className="bg-white bg-opacity-40 text-white  shadow-md rounded-lg p-4 flex justify-between items-center"
               >
                 <Link to={`/projects/${projectName}/available`} className="text-xl font-bold">
                   {projectName}
                 </Link>
-                <div className="space-x-2">
+                <div className="space-x-4">
                 {/* <button
                     className="text-red-400 hover:underline"
                     onClick={(e) => {

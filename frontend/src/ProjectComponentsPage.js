@@ -44,23 +44,37 @@ const ProjectComponentsPage = () => {
 
 
     const handleSubmitComponent = async (componentName, quantity) => {
+        // Check if filteredComponents and componentName are valid
+        if (!componentName || !filteredComponents) {
+            toast.error('Invalid component name or missing components list', { autoClose: 2000 });
+            return;
+        }
     
-
-    try {
-        await addComponent(projectName, { componentName, quantity });
-        toast.success('Component added successfully', {
-            autoClose: 2000,
-        });
-        await fetchComponents(); // Refresh the component list
-        handleCloseComponentModal();
-    } catch (error) {
-        console.error('Error adding component:', error);
-        // Extract and show more specific error messages if available
-        const errorMessage = error.response?.data?.error || 'Error adding component';
-        toast.error(errorMessage, { autoClose: 2000 });
-    }
-};
-
+        // Check if the component already exists (ensuring componentName is valid)
+        const componentExists = filteredComponents.some(
+            (component) => component?.componentName?.toLowerCase() === componentName.toLowerCase()
+        );
+    
+        if (componentExists) {
+            toast.warning('Component already exists', { autoClose: 2000 });
+            return;
+        }
+    
+        try {
+            await addComponent(projectName, { componentName, quantity });
+            toast.success('Component added successfully', {
+                autoClose: 2000,
+            });
+            await fetchComponents(); // Refresh the component list
+            handleCloseComponentModal();
+        } catch (error) {
+            console.error('Error adding component:', error);
+            const errorMessage = error.response?.data?.error || 'Error adding component';
+            toast.error(errorMessage, { autoClose: 2000 });
+        }
+    };
+    
+    
 
     const askForPassword = (action) => {
         setPendingAction(() => action); // Set the action to be performed after authentication
@@ -262,34 +276,34 @@ const ProjectComponentsPage = () => {
     );
 
     return (
-        <div className="w-full h-screen flex flex-col bg-blue-100">
+        <div className="w-full h-screen flex flex-col  bg-gradient-to-r from-amber-800 to-red-950">
             <div className="flex justify-between items-center p-4">
-                <h2 className="text-2xl font-bold">components for {projectName}</h2>
+                <h2 className="text-white text-2xl font-bold">Components for {projectName}</h2>
                 <div className='relative'>
                     <input
                         type="text"
                         placeholder="Search components..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border p-2 pl-10 rounded-xl w-full"
+                        className=" p-2 pl-10 rounded-xl w-full bg-gray-400 bg-opacity-20 hover:border-gray-300"
                     />
                     <i className="fas fa-search absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
             </div>
             <button
-                className="ml-4 bg-blue-500 text-white text-bold py-2 px-2 rounded hover:bg-blue-700 transition duration-300 mb-4 self-start"
+                className="ml-4 text-xl bg-yellow-600 text-black text-bold py-2 px-2 rounded hover:bg-white transition duration-300 mb-4 self-start font-bold"
                 onClick={handleOpenComponentModal}
             >
                 Add Component
             </button>
             {loading && <p>Loading...</p>}
             {error && <p className="text-red-500">{error}</p>}
-            <div className="flex-grow bg-white shadow-md rounded-lg overflow-hidden">
-                <ul className="p-4 h-full overflow-y-auto bg-gradient-to-r from-mint to-pink-100">
+            <div className="flex-grow overflow-hidden  p-4 rounded-lg shadow-md">
+                <ul className="p-4 h-full overflow-y-auto">
                     {filteredComponents.length > 0 ? (
                         filteredComponents.map(([componentName, { quantity }]) => (
-                            <div key={componentName} className="border-b last:border-none py-2 flex justify-between items-center">
-                                <span className="font-medium">{componentName}</span>
+                            <div key={componentName} className="last:border-none border-b border-gray-400 py-2 flex justify-between items-center text-white">
+                                <span className="text-xl">{componentName}</span>
                                 {/* <input
                                     type="number"
                                     value={quantity}
@@ -306,8 +320,8 @@ const ProjectComponentsPage = () => {
                                     </button> */}
 
 
-                                    <div className="flex justify-between items-center py-2 space-x-2">
-                                        <span className="font-medium border border-gray-300 w-24 h-8 flex items-center justify-center rounded-md">
+                                    <div className="text-xl flex justify-between items-center py-2 space-x-4">
+                                        <span className="font-medium bg-opacity-40 text-yellow-100 bg-yellow-600 border-gray-300 w-24 h-8 flex items-center justify-center rounded-md">
                                             {quantity}
                                         </span>
 
@@ -319,7 +333,7 @@ const ProjectComponentsPage = () => {
                                     </button>
 
                                         <button
-                                        className="text-red-400 hover:underline"
+                                        className="text-red-500 hover:underline"
                                         onClick={() => handleOpenConfirmModal(componentName)}
                                         >
                                         <i className="fas fa-trash-alt"></i>
@@ -328,7 +342,7 @@ const ProjectComponentsPage = () => {
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-900">No components available</p>
+                        <p className="text-white text-xl">No components available</p>
                     )}
                 </ul>
             </div>

@@ -105,17 +105,17 @@ const ProjectModal = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gradient-to-r from-teal-200 via-pink-200 to-yellow-200">
+    <div className="w-full h-screen flex flex-col bg-gradient-to-r from-orange-950 to-red-900">
       <div className="flex-none h-1/5 flex justify-between items-start p-4">
         <div className='p-4 '>
           {/* <h1 className="text-3xl text-zinc-600 font-bold ">Project List</h1> */}
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
           <button
-            className="bg-white shadow-md rounded-lg p-2 text-center cursor-pointer"
+            className="bg-yellow-600 shadow-md rounded-lg p-2 text-center cursor-pointer"
             onClick={handleOpenAddModal}
           >
-            <span className="text-gray-500">+ Add Project</span>
+            <span className="text-black font-bold ">+ Add Project</span>
           </button>
         </div>
         <div className="flex justify-center mb-6">
@@ -131,20 +131,20 @@ const ProjectModal = () => {
            */}
         </div>
       </div>
-      <div className="flex-grow overflow-y-auto bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg shadow-md">
+      <div className="flex-grow overflow-y-auto  p-4 rounded-lg shadow-md">
         <ul className="space-y-4">
           {projects.length > 0 ? (
             projects.map((projectName, index) => (
               <li
                 key={index}
-                className="bg-gradient-to-r from-pink-300 to-pink-200 shadow-md rounded-lg p-4 flex justify-between items-center"
+                className="bg-white bg-opacity-20 b shadow-md rounded-lg p-4 flex justify-between items-center text-white"
               >
                 <Link to={`/projects/${projectName}`} className="text-xl font-bold">
                   {projectName}
                 </Link>
-                <div className="space-x-2">
+                <div className="space-x-4">
                 <button
-                    className="text-red-400 hover:underline"
+                    className=" text-red-500 hover:underline"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent click event from bubbling up
                       handleOpenConfirmModal(projectName);
@@ -153,7 +153,7 @@ const ProjectModal = () => {
                     <i className="fas fa-trash-alt"></i>
                   </button>
                   <button
-                    className="text-blue-500 hover:underline"
+                    className=" text-blue-500 hover:underline"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent click event from bubbling up
                       handleOpenUpdateModal(projectName);

@@ -37,26 +37,26 @@ const ButtonPage = () => {
   
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-screen bg-cover bg-center bg-gradient-to-r from-teal-200 via-pink-200 to-yellow-200 " >
+    <div className="relative flex flex-col items-center justify-center h-screen bg-cover bg-center bg-gradient-to-r from-teal-400 via-pink-400 to-yellow-400 " >
       {/* Card container */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div
           onClick={() => navigate('/Components')}
-          className="flex flex-col items-center justify-center w-64 h-64 bg-gray-400 text-white rounded-lg shadow-lg cursor-pointer hover:bg-blue-600 transition duration-300"
+          className="flex flex-col items-center justify-center w-64 h-64 bg-gray-700 text-white rounded-lg shadow-lg cursor-pointer hover:bg-teal-900 transition duration-300"
         >
           <FaClipboardList className="text-4xl mb-4" />
           <span>Register Component</span>
         </div>
         <div
           onClick={() => navigate('/ProjectModal')}
-          className="flex flex-col items-center justify-center w-64 h-64 bg-gray-400 text-white rounded-lg shadow-lg cursor-pointer hover:bg-green-600 transition duration-300"
+          className="flex flex-col items-center justify-center w-64 h-64 bg-gray-700 text-white rounded-lg shadow-lg cursor-pointer hover:bg-orange-950 transition duration-300"
         >
           <FaClipboardList className="text-4xl mb-4" />
           <span>Assign project</span>
         </div>
         <div
           onClick={() => navigate('/ProjectModal2')}
-          className="flex flex-col items-center justify-center w-64 h-64 bg-gray-400 text-white rounded-lg shadow-lg cursor-pointer hover:bg-red-600 transition duration-300"
+          className="flex flex-col items-center justify-center w-64 h-64 bg-gray-700 text-white rounded-lg shadow-lg cursor-pointer hover:bg-pink-700 transition duration-300"
         >
           <FaClipboardList className="text-4xl mb-4" />
           <span>Check Availability</span>
@@ -66,7 +66,7 @@ const ButtonPage = () => {
       {/* Logout button in the top-right corner */}
       <div className="absolute top-4 right-4">
         <button
-          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700 transition duration-300"
+          className="bg-pink-500 text-white py-2 px-4 rounded hover:bg-red-700 transition duration-300"
           onClick={handleLogout}
         >
           Logout

@@ -45,22 +45,34 @@ const ProjectComponentsPage2 = () => {
 
 
     const handleSubmitComponent = async (componentName, quantity) => {
+        // Convert both the existing component names and the input name to lowercase to make the check case-insensitive
+        const componentExists = filteredComponents.some(
+            (component) => component.componentName.toLowerCase() === componentName.toLowerCase()
+        );
     
-
-    try {
-        await addComponent(projectName, { componentName, quantity });
-        toast.success('Component added successfully', {
-            autoClose: 2000,
-        });
-        await fetchComponents(); // Refresh the component list
-        handleCloseComponentModal();
-    } catch (error) {
-        console.error('Error adding component:', error);
-        // Extract and show more specific error messages if available
-        const errorMessage = error.response?.data?.error || 'Error adding component';
-        toast.error(errorMessage, { autoClose: 2000 });
-    }
-};
+        if (componentExists) {
+            // Display an error if the component already exists
+            toast.warning('Component already exists', {
+                autoClose: 2000,
+            });
+            return; // Stop further execution if duplicate is found
+        }
+    
+        try {
+            await addComponent(projectName, { componentName, quantity });
+            toast.success('Component added successfully', {
+                autoClose: 2000,
+            });
+            await fetchComponents(); // Refresh the component list after adding
+            handleCloseComponentModal();
+        } catch (error) {
+            console.error('Error adding component:', error);
+            // Extract and show more specific error messages if available
+            const errorMessage = error.response?.data?.error || 'Error adding component';
+            toast.error(errorMessage, { autoClose: 2000 });
+        }
+    };
+    
 
 
     const askForPassword = (action) => {
@@ -291,66 +303,71 @@ const ProjectComponentsPage2 = () => {
     );
 
     return (
-        <div className="w-full h-screen flex flex-col bg-blue-100">
+        <div className="w-full h-screen flex flex-col bg-rose-900">
             <div className="flex justify-between items-center p-4">
-                <h2 className="text-2xl font-bold">Components for {projectName}</h2>
-                <div className="relative">
+                <h2 className="flex-grow text-white text-2xl font-bold p-4 text-center">Components for {projectName}</h2>
+                <div className="relative ">
                     <input
                         type="text"
                         placeholder="Search components..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border p-2 pl-10 rounded-xl w-full"
+                        className=" p-2 pl-10 rounded-xl w-full bg-gray-400 bg-opacity-20"
                     />
                     <i className="fas fa-search absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
             </div>
-            <button
+            {/* <button
                 className="ml-4 bg-blue-500 text-white font-bold py-2 px-2 rounded hover:bg-blue-700 transition duration-300 mb-4 self-start"
                 onClick={handleOpenComponentModal}
             >
                 Add Component
-            </button>
+            </button> */}
             {loading && <p>Loading...</p>}
             {error && <p className="text-red-500">{error}</p>}
-            <div className="flex-grow bg-white shadow-md rounded-lg overflow-hidden">
-    <ul className="p-4 h-full overflow-y-auto bg-gradient-to-r from-mint to-pink-100">
-        {filteredComponents.length > 0 ? (
-            filteredComponents.map(([componentName, { quantity }]) => {
-                const registerComponent = registerComponents[componentName] || {}; // Check register components
-                const registerQty = registerComponent.quantity || 0;
-                
-                // Calculate the display quantity
-                const displayQuantity =  registerQty - quantity ;
+            <div className="flex-grow shadow-md rounded-lg overflow-hidden">
+                    <ul className="p-4 h-full text-xl overflow-y-auto text-white">
+                        {filteredComponents.length > 0 ? (
+                            filteredComponents.map(([componentName, { quantity }]) => {
+                                const registerComponent = registerComponents[componentName] || {}; // Check register components
+                                const registerQty = registerComponent.quantity || 0;
+                                
+                                // Calculate the display quantity
+                                const displayQuantity =  registerQty - quantity ;
 
-                return (
-                    <div key={componentName} className="border-b last:border-none py-2 flex justify-between items-center">
-                        <span className="font-medium">{componentName}</span>
-                        <div className="flex justify-between items-center py-2 space-x-2">
-                            <span className="font-medium border bo border-gray-300 w-40 h-8 flex items-center justify-center rounded-md">
-                                Quantity : {quantity}
-                            </span>
-                            <div className="flex items-center space-x-2">
-                                        <span className="font-medium">Register Qty:</span>
+                                return (
+                                    <div key={componentName} className="border-b last:border-none py-2 flex justify-between items-center">
+                                        <span className="font-medium">{componentName}</span>
+                                        <div className="flex justify-between items-center py-2 space-x-2">
+                                            <span className="font-medium bg-pink-200 bg-opacity-30 border-gray-300 w-56 h-8 flex items-center justify-center rounded-md text-white">
+                                                Quantity : {quantity}
+                                            </span>
+                                            <div className="flex items-center space-x-4 ">
+                                        <span className="font-medium ">Register Qty:</span>
                                         <span 
                                             className={`font-medium border border-b-2 w-24 h-8 flex items-center justify-center rounded-md ${
-                                                displayQuantity < 0 ? '  text-red-700 border-red-500' :
-                                                displayQuantity === 0 ? 'text-gray-700 border-gray-500' :
-                                                'text-black border-gray-500'
+                                                displayQuantity > 0 ? 'bg-green-800 border-green-800' :
+                                                displayQuantity < 0 ? 'bg-red-700 border-red-700' :
+                                                'bg-green-800 border-green-800'
                                             }`}
                                         >
-                                            {displayQuantity === 0 ? registerQty : (displayQuantity < 0 ? `- ${Math.abs(displayQuantity)}` : displayQuantity)}
+                                            {displayQuantity < 0
+                                                ? `${registerQty - quantity}` // Show registerQty - quantity if displayQuantity > 0
+                                                : displayQuantity > 0
+                                                ? `${registerQty}` // Show total registerQty if displayQuantity < 0
+                                                : registerQty // Show same registerQty if displayQuantity === 0
+                                            }
                                         </span>
                                     </div>
-                        </div>
-                    </div>
-                );
-            })
-        ) : (
-            <p className="text-gray-900">No components available</p>
-        )}
-    </ul>
-</div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p className="text-white text-xl">No components available</p>
+                        )}
+                    </ul>
+                </div>
 
             <AddComponentModal
                 isOpen={isComponentModalOpen}

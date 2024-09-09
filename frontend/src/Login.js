@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import logo from './images/xyma.png';
+import logo from './images/xyma1.png';
 
 const Login = ({ onLoginSuccess }) => {
   const [formData, setFormData] = useState({ username: '', password: '' });
