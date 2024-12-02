@@ -178,81 +178,83 @@ const ProjectComponentsPage = () => {
 
     const handleUpdateComponent = async (oldComponentName, updates) => {
         try {
+            if (!oldComponentName) {
+                toast.error("Component name is missing", { autoClose: 2000 });
+                return; // Exit if oldComponentName is undefined
+            }
+    
             if (!isAuthenticated) {
                 // Set the action to be performed after password verification
                 askForPassword(async () => {
                     console.log('Updating component:', oldComponentName, updates); // Log values
-    
+        
                     const updatePromises = [];
-    
+        
                     // Fetch existing components
                     const response = await getProjectComponents(projectName);
-                    const componentsObject = response.components || {}; // Ensure it's an object
-                    const existingComponents = Object.values(componentsObject); // Convert to array
-    
-                    // console.log('Existing Components:', existingComponents);
-    
+                    const componentsArray = response.components || []; // Ensure it's an array
+        
                     // Check if newName is provided and not the same as the old name
                     if (updates.newName && updates.newName !== oldComponentName) {
-                        const nameExists = existingComponents.some(component => component.ComponentName === updates.newName);
-    
+                        const nameExists = componentsArray.some(component => component.name === updates.newName);
+        
                         if (nameExists) {
-                            //throw new Error('New component name already exists');
-                            toast.warning('Component name aldready exixts', { autoClose: 2000 })
+                            toast.warning('Component name already exists', { autoClose: 2000 });
+                            return; // Stop execution if the name exists
                         }
-    
-                        updatePromises.push(updateComponentName(projectName,oldComponentName, updates.newName));
+        
+                        updatePromises.push(updateComponentName(projectName, oldComponentName, updates.newName));
                     }
-    
+        
                     if (updates.newQuantity !== undefined) {
                         updatePromises.push(updateComponentQuantity(projectName, oldComponentName, updates.newQuantity));
                     }
-    
+        
                     await Promise.all(updatePromises);
-    
+        
                     toast.success('Component updated successfully', { autoClose: 2000 });
                     fetchComponents(); // Refresh the list after successful update
                     handleCloseUpdateModal();
                 });
             } else {
                 console.log('Updating component:', oldComponentName, updates); // Log values
-    
+        
                 const updatePromises = [];
-    
+        
                 // Fetch existing components
                 const response = await getProjectComponents(projectName);
-                const componentsObject = response.components || {}; // Ensure it's an object
-                const existingComponents = Object.values(componentsObject); // Convert to array
-    
-                console.log('Existing Components:', existingComponents);
-    
+                const componentsArray = response.components || []; // Ensure it's an array
+        
+                console.log('Existing Components:', componentsArray);
+        
                 // Check if newName is provided and not the same as the old name
                 if (updates.newName && updates.newName !== oldComponentName) {
-                    const nameExists = existingComponents.some(component => component.componentName === updates.newName);
-    
+                    const nameExists = componentsArray.some(component => component.name === updates.newName);
+        
                     if (nameExists) {
-                        //throw new Error('New component name already exists');
-                        toast.warning('Component name aldready exixts', { autoClose: 2000 })
+                        toast.warning('Component name already exists', { autoClose: 2000 });
+                        return; // Stop execution if the name exists
                     }
-    
-                    updatePromises.push(updateComponentName(projectName,oldComponentName, updates.newName));
+        
+                    updatePromises.push(updateComponentName(projectName, oldComponentName, updates.newName));
                 }
-    
+        
                 if (updates.newQuantity !== undefined) {
                     updatePromises.push(updateComponentQuantity(projectName, oldComponentName, updates.newQuantity));
                 }
-    
+        
                 await Promise.all(updatePromises);
-    
+        
                 toast.success('Component updated successfully', { autoClose: 2000 });
                 fetchComponents(); // Refresh the list after successful update
                 handleCloseUpdateModal();
             }
         } catch (error) {
             console.error('Error updating component:', error);
-            console.error(error.message || 'Error updating component', { autoClose: 2000 });
+            toast.error(error.message || 'Error updating component', { autoClose: 2000 });
         }
     };
+    
     
 
     const fetchComponents = async () => {
@@ -271,9 +273,11 @@ const ProjectComponentsPage = () => {
         fetchComponents();
     }, [projectName]);
 
-    const filteredComponents = Object.entries(components).filter(([componentName]) =>
-        componentName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredComponents = Object.values(components).filter((component) =>
+        component.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+
 
     return (
         <div className="w-full h-screen flex flex-col  bg-gradient-to-r from-amber-800 to-red-950">
@@ -301,9 +305,9 @@ const ProjectComponentsPage = () => {
             <div className="flex-grow overflow-hidden  p-4 rounded-lg shadow-md">
                 <ul className="p-4 h-full overflow-y-auto">
                     {filteredComponents.length > 0 ? (
-                        filteredComponents.map(([componentName, { quantity }]) => (
-                            <div key={componentName} className="last:border-none border-b border-gray-400 py-2 flex justify-between items-center text-white">
-                                <span className="text-xl">{componentName}</span>
+                        filteredComponents.map((component) => (
+                            <div key={component._id} className="last:border-none border-b border-gray-400 py-2 flex justify-between items-center text-white">
+                                <span className="text-xl">{component.name}</span>
                                 {/* <input
                                     type="number"
                                     value={quantity}
@@ -322,19 +326,19 @@ const ProjectComponentsPage = () => {
 
                                     <div className="text-xl flex justify-between items-center py-2 space-x-4">
                                         <span className="font-medium bg-opacity-40 text-yellow-100 bg-yellow-600 border-gray-300 w-24 h-8 flex items-center justify-center rounded-md">
-                                            {quantity}
+                                            {component.quantity}
                                         </span>
 
                                         <button
                                         className="text-blue-500 hover:underline"
-                                        onClick={() => handleOpenUpdateModal({ componentName, quantity })}
+                                        onClick={() => handleOpenUpdateModal({ componentName: component.name, quantity: component.quantity})}
                                     >
                                         <i className="fas fa-pencil-alt"></i>
                                     </button>
 
                                         <button
                                         className="text-red-500 hover:underline"
-                                        onClick={() => handleOpenConfirmModal(componentName)}
+                                        onClick={() => handleOpenConfirmModal(component._id)}
                                         >
                                         <i className="fas fa-trash-alt"></i>
                                     </button>

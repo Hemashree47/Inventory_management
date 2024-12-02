@@ -17,7 +17,7 @@ export const addComponent = (projectName, component) => {
 export const getProjectComponents = async (projectName) => {
   try {
     const response = await axios.get(`${API_URL}/projects/${projectName}/components`, { withCredentials: true });
-    console.log('API response:', response.data); // Debugging log
+   
     return response.data ;
   } catch (error) {
     console.error('Error fetching project components:', {
@@ -60,7 +60,7 @@ export const deleteProject = async (projectName) => {
 
 export const updateProject = async (oldProjectName, newProjectName) => {
   try {
-    const response = await axios.put(`http://localhost:5000/api/projects/${oldProjectName}`, {
+    const response = await axios.put(`c/projects/${oldProjectName}`, {
       newProjectName
     }, { withCredentials: true });
     return response;
@@ -108,14 +108,17 @@ export const updateRegisterComponentName = async ( componentName, newComponentNa
   }
 };
 
-export const updateComponentName = async ( projectName,componentName, newComponentName) => {
+export const updateComponentName = async (projectName, componentName, newComponentName) => {
   try {
-      const response = await axios.put(`${API_URL}/projects/${projectName}/components/${componentName}/name`, {
-          newComponentName
-      });
-      return response.data;
+    const response = await axios.put(
+      `${API_URL}/projects/${projectName}/components/${componentName}/name`,
+      { newComponentName },
+      { withCredentials: true }
+    );
+    return response.data;
   } catch (error) {
-      throw new Error(error.response?.data?.error || 'Error updating component name');
+    console.error('Error updating component name:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.error || 'Failed to update component name');
   }
 };
 
@@ -135,15 +138,18 @@ export const updateRegisterComponentQuantity = async ( componentName, quantity) 
 
 export const updateComponentQuantity = async (projectName, componentName, quantity) => {
   try {
-    const response = await axios.put(`${API_URL}/projects/${projectName}/components/${componentName}`, {
-      quantity
-    }, { withCredentials: true });
+    const response = await axios.put(
+      `${API_URL}/projects/${projectName}/components/${componentName}`,
+      { quantity },
+      { withCredentials: true }
+    );
     return response.data;
   } catch (error) {
-    console.error('Error updating component quantity:', error);
-    throw error; // or handle the error as needed
+    console.error('Error updating component quantity:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.error || 'Failed to update component quantity');
   }
 };
+
 
 export const deleteRegisterComponent=async(componentName)=>{
   return axios.delete(`${API_URL}/components/${componentName}`)

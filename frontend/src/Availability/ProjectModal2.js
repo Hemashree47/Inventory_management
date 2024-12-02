@@ -1,92 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import AddProjectModal from '../AddProjectModal';
-import UpdateProjectModal from '../UpdateProjectModal';
-import ConfirmationModal from '../ConfirmationModal';
-import { Link, useNavigate } from 'react-router-dom';
-import { getAllProjects, addProject, deleteProject, updateProject } from '../projectApi';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+// import AddProjectModal from '../AddProjectModal';
+// import UpdateProjectModal from '../UpdateProjectModal';
+// import ConfirmationModal from '../ConfirmationModal';
+import { Link } from 'react-router-dom';
+import { getAllProjects } from '../projectApi';
+
 import 'react-toastify/dist/ReactToastify.css';
 import logo from '../images/xyma.png';
 
 const ProjectModal2 = () => {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState(null);
-  const navigate = useNavigate();
 
-  const handleOpenAddModal = () => setIsAddModalOpen(true);
-  const handleCloseAddModal = () => setIsAddModalOpen(false);
 
-  const handleOpenUpdateModal = (projectName) => {
-    setSelectedProject(projectName);
-    setIsUpdateModalOpen(true);
-  };
-  const handleCloseUpdateModal = () => setIsUpdateModalOpen(false);
 
-  const handleOpenConfirmModal = (projectName) => {
-    setProjectToDelete(projectName);
-    setIsConfirmModalOpen(true);
-  };
-  const handleCloseConfirmModal = () => setIsConfirmModalOpen(false);
-
-  const handleSubmitProject = async (projectName) => {
-    try {
-      await addProject(projectName);
-      toast.success('Project added successfully', { autoClose: 2000 });
-      fetchProjects();
-      handleCloseAddModal();
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        toast.warning('Project name already exists', { autoClose: 2000 });
-      } else {
-        toast.error('Error adding project', { autoClose: 2000 });
-      }
-    }
-  };
-
-  const handleUpdateProject = async (oldProjectName, newProjectName) => {
-    try {
-      await updateProject(oldProjectName, newProjectName);
-      toast.success('Project updated successfully', { autoClose: 2000 });
-      fetchProjects();
-      handleCloseUpdateModal();
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        toast.warning('Project name already exists', { autoClose: 2000 });
-      } else {
-        toast.error('Error updating project', { autoClose: 2000 });
-      }
-    }
-  };
-
-  const handleDeleteProject = async () => {
-    try {
-      await deleteProject(projectToDelete);
-      toast.success('Project deleted successfully', { autoClose: 2000 });
-      fetchProjects();
-      handleCloseConfirmModal();
-    } catch (error) {
-      toast.error('Error deleting project', { autoClose: 2000 });
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await axios.post('http://localhost:5000/api/logout', {}, { withCredentials: true });
-      toast.success('Logout Successfully!!', { autoClose: 1000 });
-      navigate('/login');
-      window.location.reload();
-    } catch (error) {
-      console.error('Error during logout:', error);
-      toast.error('Failed to log out', { autoClose: 1000 });
-    }
-  };
+  
 
   const fetchProjects = async () => {
     try {
@@ -172,7 +102,7 @@ const ProjectModal2 = () => {
         </ul>
       </div>
 
-      <AddProjectModal
+      {/* <AddProjectModal
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         onSubmit={handleSubmitProject}
@@ -188,7 +118,7 @@ const ProjectModal2 = () => {
         onClose={handleCloseConfirmModal}
         onConfirm={handleDeleteProject}
         message={`Are you sure you want to delete the project "${projectToDelete}"?`}
-      />
+      /> */}
     </div>
   );
 };

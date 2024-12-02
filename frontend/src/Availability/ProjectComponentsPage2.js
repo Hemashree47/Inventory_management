@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import AddComponentModal from '../AddComponentModal';
-import PasswordModal from '../PasswordModal';
-import ConfirmComponentModal from '../ConfirmComponentModal';
-import UpdateComponentModal from '../updateComponentModal';
-import { getRegisterComponents,getProjectComponents, addComponent, updateComponentQuantity, deleteComponents, updateComponentName } from '../projectApi';
+
+import { getRegisterComponents,getProjectComponents, updateComponentQuantity, deleteComponents, updateComponentName } from '../projectApi';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const FIXED_PASSWORD = "0000"
@@ -30,48 +27,20 @@ const ProjectComponentsPage2 = () => {
     const handleOpenComponentModal = () => setIsComponentModalOpen(true);
     const handleCloseComponentModal = () => setIsComponentModalOpen(false);
 
-    const handleOpenUpdateModal = (component) => {
-        setSelectedComponent(component); // Ensure component has the structure {componentName, quantity}
-        setIsUpdateModalOpen(true);
-    };
+    // const handleOpenUpdateModal = (component) => {
+    //     setSelectedComponent(component); // Ensure component has the structure {componentName, quantity}
+    //     setIsUpdateModalOpen(true);
+    // };
     const handleCloseUpdateModal = () => setIsUpdateModalOpen(false);
 
-    const handleOpenConfirmModal = (componentName) => {
-        setComponentToDelete(componentName); // Set the component name to delete
-        setIsConfirmModalOpen(true);
-    };
+    // const handleOpenConfirmModal = (componentName) => {
+    //     setComponentToDelete(componentName); // Set the component name to delete
+    //     setIsConfirmModalOpen(true);
+    // };
     
-    const handleCloseConfirmModal = () => setIsConfirmModalOpen(false);
+    // const handleCloseConfirmModal = () => setIsConfirmModalOpen(false);
 
 
-    const handleSubmitComponent = async (componentName, quantity) => {
-        // Convert both the existing component names and the input name to lowercase to make the check case-insensitive
-        const componentExists = filteredComponents.some(
-            (component) => component.componentName.toLowerCase() === componentName.toLowerCase()
-        );
-    
-        if (componentExists) {
-            // Display an error if the component already exists
-            toast.warning('Component already exists', {
-                autoClose: 2000,
-            });
-            return; // Stop further execution if duplicate is found
-        }
-    
-        try {
-            await addComponent(projectName, { componentName, quantity });
-            toast.success('Component added successfully', {
-                autoClose: 2000,
-            });
-            await fetchComponents(); // Refresh the component list after adding
-            handleCloseComponentModal();
-        } catch (error) {
-            console.error('Error adding component:', error);
-            // Extract and show more specific error messages if available
-            const errorMessage = error.response?.data?.error || 'Error adding component';
-            toast.error(errorMessage, { autoClose: 2000 });
-        }
-    };
     
 
 
@@ -80,19 +49,7 @@ const ProjectComponentsPage2 = () => {
         setIsPasswordModalOpen(true); // Open the password modal
     };
 
-    const handlePasswordSubmit = (enteredPassword) => {
-        if (enteredPassword === FIXED_PASSWORD) {
-            setIsAuthenticated(true);
-            setIsPasswordModalOpen(false);
-            if (pendingAction) {
-                pendingAction(); // Perform the pending action after successful authentication
-                setPendingAction(null); // Clear the pending action
-            }
-        } else {
-            toast.error('Incorrect password', { autoClose: 2000 });
-            setIsPasswordModalOpen(false); // Close the modal on error
-        }
-    };
+    
 
     // const handleDeleteComponent = async () => {
     //     try {
@@ -106,34 +63,7 @@ const ProjectComponentsPage2 = () => {
     // };
 
 
-    const handleDeleteComponent = async () => {
-        try {
-            if (!isAuthenticated) {
-                
-                    askForPassword(async (password) => {
-                        try {
-                            await deleteComponents(projectName, componentToDelete);
-                            toast.success('Component deleted successfully', { autoClose: 2000 });
-                            fetchComponents();
-                            handleCloseConfirmModal();
-                            //resolve(); // Resolve the promise when done
-                        } catch (error) {
-                            toast.error('Error deleting component', { autoClose: 2000 });
-                            //reject(error); // Reject the promise if there's an error
-                        }
-                    });
-                
-            } else {
-                await deleteComponents(projectName, componentToDelete);
-                toast.success('Component deleted successfully', { autoClose: 2000 });
-                fetchComponents();
-                handleCloseConfirmModal();
-            }
-        } catch (error) {
-            toast.error('Error deleting component', { autoClose: 2000 });
-        }
-    };
-    
+  
     
     // const handleUpdateComponent = async (oldComponentName, updates) => {
     //     try {
@@ -298,9 +228,9 @@ const ProjectComponentsPage2 = () => {
         fetchRegisterComponents(); // Fetch register components on load
     }, [projectName]);
 
-    const filteredComponents = Object.entries(components).filter(([componentName]) =>
-        componentName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredComponents = Object.values(components).filter((component) =>
+        component.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
     return (
         <div className="w-full h-screen flex flex-col bg-rose-900">
@@ -327,23 +257,24 @@ const ProjectComponentsPage2 = () => {
             {error && <p className="text-red-500">{error}</p>}
             <div className="flex-grow shadow-md rounded-lg overflow-hidden">
                     <ul className="p-4 h-full text-xl overflow-y-auto text-white">
-                        {filteredComponents.length > 0 ? (
-                            filteredComponents.map(([componentName, { quantity }]) => {
-                                const registerComponent = registerComponents[componentName] || {}; // Check register components
+                        {Array.isArray(filteredComponents) &&filteredComponents.length > 0 ? (
+                            filteredComponents.map((component) => {
+                                const { name, quantity } = component; // Destructure the component object
+                                const registerComponent = registerComponents[name] || {}; // Check register components
                                 const registerQty = registerComponent.quantity || 0;
                                 
                                 // Calculate the display quantity
                                 const displayQuantity =  registerQty - quantity ;
 
                                 return (
-                                    <div key={componentName} className="border-b last:border-none py-2 flex justify-between items-center">
-                                        <span className="font-medium">{componentName}</span>
+                                    <div key={component._id} className="border-b last:border-none py-2 flex justify-between items-center">
+                                        <span className="font-medium">{name}</span>
                                         <div className="flex justify-between items-center py-2 space-x-2">
                                             <span className="font-medium bg-pink-200 bg-opacity-30 border-gray-300 w-56 h-8 flex items-center justify-center rounded-md text-white">
                                                 Quantity : {quantity}
                                             </span>
                                             <div className="flex items-center space-x-4 ">
-                                        <span className="font-medium ">Register Qty:</span>
+                                        <span className="font-medium ">Available Qty:</span>
                                         <span 
                                             className={`font-medium border border-b-2 w-24 h-8 flex items-center justify-center rounded-md ${
                                                 displayQuantity > 0 ? 'bg-green-800 border-green-800' :
@@ -369,28 +300,7 @@ const ProjectComponentsPage2 = () => {
                     </ul>
                 </div>
 
-            <AddComponentModal
-                isOpen={isComponentModalOpen}
-                onClose={handleCloseComponentModal}
-                onSubmit={handleSubmitComponent}
-            />
-            <PasswordModal
-                isOpen={isPasswordModalOpen}
-                onClose={() => setIsPasswordModalOpen(false)}
-                onSubmit={handlePasswordSubmit}
-            />
-            <UpdateComponentModal
-                isOpen={isUpdateModalOpen}
-                onClose={handleCloseUpdateModal}
-                onSubmit={handleUpdateComponent}
-                component={selectedComponent}
-            />
-            <ConfirmComponentModal
-                isOpen={isConfirmModalOpen}
-                onClose={handleCloseConfirmModal}
-                onConfirm={handleDeleteComponent}
-                message={`Are you sure you want to delete the component "${componentToDelete}"?`}
-            />
+            
         </div>
     );
 

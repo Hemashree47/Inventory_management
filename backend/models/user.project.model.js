@@ -13,19 +13,15 @@ const componentSchema=new mongoose.Schema({
 })
 
 
-const projectSchema=new mongoose.Schema({
-    projectName:{
-        type:String,
-        required:true,
-        unique:true
+const projectSchema = new mongoose.Schema({
+    projectName: {
+        type: String,
+        required: true,
+        unique: true,
     },
-
-    components:{
-        type:Map,
-        of:componentSchema,
-        default:{}
-    }
-})
+    components: [componentSchema] 
+    
+});
 
 const Project=mongoose.model("Project",projectSchema);
 

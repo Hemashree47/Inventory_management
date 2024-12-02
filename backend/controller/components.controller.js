@@ -12,9 +12,6 @@ export const getRegisterComponents = async (req, res) => {
 };
 
 export const addRegisterComponents = async (req, res) => {
-    
-
-    
 
     try {
         let { componentName, quantity } = req.body;

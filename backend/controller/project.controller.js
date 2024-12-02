@@ -35,41 +35,100 @@ export const addProject = async (req, res) => {
 
 
 
-export const addComponents = async (req, res) => {
-    try {
-        const { projectName } = req.params;
-        let { componentName, quantity } = req.body;
+// export const addComponents = async (req, res) => {
+//     try {
+//         const { projectName } = req.params;
+//         let { componentName, quantity } = req.body;
 
         
         // Capitalize the first letter of the component name
-        componentName = componentName.charAt(0).toUpperCase() + componentName.slice(1).toLowerCase();
 
-        // Find the project
-        const project = await Project.findOne({ projectName });
+        // componentName = componentName.charAt(0).toUpperCase() + componentName.slice(1).toLowerCase();
+
+
+        // console.log("componentName=",componentName)
+        // // Find the project
+        // const project = await Project.findOne({ projectName });
+        // console.log("project =",project);
+
+        // if (!project) {
+        //     return res.status(404).json({ error: 'Project not found' });
+        // }
+
+        // // Convert the component names in the map to lower case for case-insensitive comparison
+        // const existingComponents = Array.from(project.components.keys()).map(name => name.toLowerCase());
+
+        // // Check if the component already exists (case-insensitive)
+        // if (existingComponents.includes(componentName.toLowerCase())) {
+        //     return res.status(400).json({ error: 'Component already exists' });
+        // }
+
+        // // Add the new component
+        // project.components.set(componentName, { name: componentName, quantity });
+        // await project.save();
+
+        // res.status(201).json({ msg: 'Component added successfully' });
+
+//     } catch (error) {
+//         console.error('Error in adding component:', error.message);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+
+export const addComponents = async (req, res) => {
+    try {
+        const { projectName } = req.params; // Extract project name from URL parameters
+        const { componentName, quantity } = req.body; // Extract component details from request body
+
+        // Check if the project exists
+        let project = await Project.findOne({ projectName });
 
         if (!project) {
-            return res.status(404).json({ error: 'Project not found' });
+            // If project does not exist, create a new project with only the project name
+            project = new Project({ projectName });
+            await project.save();
+
+            return res.status(201).json({
+                message: "Project created successfully",
+                project: { projectName: project.projectName, components: project.components },
+            });
         }
 
-        // Convert the component names in the map to lower case for case-insensitive comparison
-        const existingComponents = Array.from(project.components.keys()).map(name => name.toLowerCase());
+        // If componentName and quantity are provided, add the component
+        if (componentName && quantity !== undefined) {
+            // Check if the component already exists in the project
+            const existingComponent = project.components.find(
+                (component) => component.name.toLowerCase() === componentName.toLowerCase()
+            );
 
-        // Check if the component already exists (case-insensitive)
-        if (existingComponents.includes(componentName.toLowerCase())) {
-            return res.status(400).json({ error: 'Component already exists' });
+            if (existingComponent) {
+                return res.status(400).json({ error: "Component with this name already exists" });
+            }
+
+            // Add the new component
+            project.components.push({ name: componentName, quantity });
+
+            // Save the updated project
+            await project.save();
+
+            return res.status(200).json({
+                message: "Component added successfully",
+                project,
+            });
         }
 
-        // Add the new component
-        project.components.set(componentName, { name: componentName, quantity });
-        await project.save();
-
-        res.status(201).json({ msg: 'Component added successfully' });
-
+        // If no component details are provided, return the project with its current components
+        return res.status(200).json({
+            message: "Project retrieved successfully",
+            project: { projectName: project.projectName, components: project.components },
+        });
     } catch (error) {
-        console.error('Error in adding component:', error.message);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error("Error in adding component:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 
 
@@ -136,9 +195,6 @@ export const updateProjectName = async (req, res) => {
     }
 };
 
-
-
-
 export const getProjectComponents = async (req, res) => {
     try {
         const { projectName } = req.params;
@@ -171,8 +227,8 @@ export const updateComponentQuantity = async (req, res) => {
             return res.status(404).json({ error: 'Project not found' });
         }
 
-        // Find the component within the project's components map
-        const component = project.components.get(componentName);
+        // Find the component within the project's components array
+        const component = project.components.find(c => c.name === componentName);
 
         if (!component) {
             return res.status(404).json({ error: 'Component not found' });
@@ -186,7 +242,7 @@ export const updateComponentQuantity = async (req, res) => {
 
         res.status(200).json({
             message: 'Quantity updated successfully',
-            component: project.components.get(componentName)
+            component: component
         });
 
     } catch (error) {
@@ -195,8 +251,9 @@ export const updateComponentQuantity = async (req, res) => {
     }
 };
 
+
 export const updateComponentName = async (req, res) => {
-    const { projectName, componentName } = req.params; // The current componentName (the key in the map)
+    const { projectName, componentName } = req.params; // The current componentName
     let { newComponentName } = req.body; // The new name to be updated
 
     if (!newComponentName || typeof newComponentName !== 'string') {
@@ -214,38 +271,22 @@ export const updateComponentName = async (req, res) => {
             return res.status(404).json({ error: 'Project not found' });
         }
 
-        // Find the component
-        const component = project.components.get(componentName);
+        // Find the component by name within the components array
+        const component = project.components.find(c => c.name === componentName);
 
         if (!component) {
             return res.status(404).json({ error: 'Component not found' });
         }
 
         // Check if the new component name already exists (case-insensitive)
-        const existingComponents = Array.from(project.components.entries());
-        const nameExists = existingComponents.some(([key]) => key.toLowerCase() === newComponentName.toLowerCase());
+        const nameExists = project.components.some(c => c.name.toLowerCase() === newComponentName.toLowerCase());
 
         if (nameExists) {
             return res.status(400).json({ error: 'New component name already exists' });
         }
 
-        // Create a new Map to maintain the order
-        const updatedComponents = new Map();
-
-        for (const [key, value] of project.components) {
-            if (key === componentName) {
-                // Update componentName and synchronize the name field
-                updatedComponents.set(newComponentName, {
-                    ...value,
-                    name: newComponentName // Update the `name` field
-                });
-            } else {
-                updatedComponents.set(key, value);
-            }
-        }
-
-        // Replace the old components map with the updated one
-        project.components = updatedComponents;
+        // Update the component name
+        component.name = newComponentName;
 
         // Save the updated project
         await project.save();
@@ -256,6 +297,7 @@ export const updateComponentName = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 
 
